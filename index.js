@@ -31,6 +31,17 @@ app.get('/setup', async (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
+  
+  // Auto-setup webhook if running on Railway
+  if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+    const webhookUrl = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}/webhook`;
+    console.log(`[Railway] Auto-configuring webhook to: ${webhookUrl}`);
+    try {
+      await telegramService.setWebhook(webhookUrl);
+    } catch (err) {
+      console.error('[Railway] Failed to auto-configure webhook:', err);
+    }
+  }
 });
